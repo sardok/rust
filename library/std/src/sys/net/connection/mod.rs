@@ -59,3 +59,27 @@ where
         None => Err(Error::NO_ADDRESSES),
     }
 }
+
+// Default implementation, this shouldn't be called directly by the function's
+// path in this module. Instead, use the platform-specific implementation
+// (which may be this one).
+//
+// allow(dead_code): This function is only used on some targets
+// #[allow(dead_code)]
+// #[cfg(
+//     not(all(target_vendor = "fortanix", target_env = "sgx")),
+// )]
+pub(crate) fn lookup_host_string(addr: &str) -> crate::io::Result<impl Iterator<Item = crate::net::SocketAddr>> {
+    use crate::io;
+
+    // Split the string by ':' and convert the second part to u16...
+    let Some((host, port_str)) = addr.rsplit_once(':') else {
+        return Err(io::const_error!(io::ErrorKind::InvalidInput, "invalid socket address"));
+    };
+    let Ok(port) = port_str.parse::<u16>() else {
+        return Err(io::const_error!(io::ErrorKind::InvalidInput, "invalid port value"));
+    };
+
+    // ... and make the system look up the host.
+    crate::sys::net::lookup_host(host, port)
+}

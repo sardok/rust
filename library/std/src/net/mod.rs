@@ -71,6 +71,6 @@ pub enum Shutdown {
     Both,
 }
 
-// allow(unused_imports): This function is only used on some targets
-#[allow(unused_imports)]
-pub(crate) use socket_addr::lookup_host_string;
+// // allow(unused_imports): This function is only used on some targets
+// #[allow(unused_imports)]
+// pub(crate) use crate::sys::net::lookup_host_string;
